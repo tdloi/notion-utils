@@ -21,7 +21,7 @@
   ],
   "main": "dist/index.js",
   "module": "dist/notion-utils.esm.js",
-  "typing": "dist/types.d.ts",
+  "types": "./dist/index.d.ts",
   "engines": {
     "node": ">=10"
   },
@@ -31,14 +31,24 @@
     "prepare": "tsdx build",
     "test": "tsdx test"
   },
+  "dependencies": {
+    "@emotion/core": "^10.1.1",
+    "dayjs": "^1.9.5",
+    "lru-cache": "^6.0.0"
+  },
   "devDependencies": {
+    "@types/lru-cache": "^5.1.0",
+    "@types/react": "^16.9.56",
     "husky": "^4.3.0",
+    "jest": "<26.0.0",
     "lint-staged": "^10.5.1",
     "prettier": "^2.1.2",
     "tsdx": "^0.14.1",
     "tslib": "^2.0.3",
-    "typescript": "<4.0.0",
-    "jest": "<26.0.0"
+    "typescript": "<4.0.0"
+  },
+  "peerDependencies": {
+    "react": ">16.10"
   },
   "husky": {
     "hooks": {
@@ -46,7 +56,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
+    "*.{ts,tsx,css,md}": "prettier --write"
   },
   "prettier": {
     "printWidth": 120,
