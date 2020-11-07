@@ -33,7 +33,7 @@ export interface ITweet {
       media_key: string;
       width: number;
       height: number;
-      type: 'photo' | 'video';
+      type: string;
       url: string;
       preview_image_url?: string;
     }>;
@@ -67,7 +67,7 @@ export interface ITwitterTimelineResponse {
         created_at: string;
         id_str: string;
         full_text: string;
-        display_text_range: [number, number];
+        display_text_range: number[];
         user_id_str: string;
         retweet_count: number;
         favorite_count: number;
@@ -78,26 +78,26 @@ export interface ITwitterTimelineResponse {
         entities: {
           hashtags?: Array<{
             text: string;
-            indices: [number, number];
+            indices: number[];
           }>;
           user_mentions?: Array<{
             screen_name: string;
             name: string;
             id_str: string;
-            indices: [number, number];
+            indices: number[];
           }>;
           urls?: Array<{
             url: string; // url return in full_text
             expanded_url: string;
             display_url: string;
-            indices: [number, number];
+            indices: number[];
           }>;
           media?: Array<{
             id_str: string;
-            indices: [number, number];
+            indices: number[];
             media_url_https: string;
             display_url: string;
-            type: 'photo' | 'video';
+            type: string;
             original_info: {
               width: number;
               height: number;
@@ -117,5 +117,5 @@ export interface ITwitterTimelineResponse {
       };
     };
   };
-  timeline: {};
+  [key: string]: any;
 }

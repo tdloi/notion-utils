@@ -67,6 +67,7 @@ export function formatTweet(res: ITwitterTimelineResponse, tweetId: string): ITw
       reply_count: tweet.reply_count,
       retweet_count: tweet.retweet_count,
     },
+    // TODO: parse entities property
     includes: {
       users: [
         {

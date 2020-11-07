@@ -4,6 +4,7 @@
     "jsx": "react",
     "module": "ESNext",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "lib": ["DOM", "ESNext"],
     "rootDir": "./src",
     "strict": true,

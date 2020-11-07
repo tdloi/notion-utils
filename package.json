@@ -29,7 +29,7 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "prepare": "tsdx build",
-    "test": "tsdx test"
+    "test": "jest -c jest.config.js"
   },
   "dependencies": {
     "@emotion/core": "^10.1.1",
@@ -61,8 +61,5 @@
   "prettier": {
     "printWidth": 120,
     "singleQuote": true
-  },
-  "jest": {
-    "rootDir": "tests"
   }
 }
