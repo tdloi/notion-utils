@@ -1,3 +1,9 @@
+import _dayjs from 'dayjs';
+import _dayjsUTC from 'dayjs/plugin/utc';
+
+_dayjs.extend(_dayjsUTC);
+export const dayjs = _dayjs.utc;
+
 // https://github.com/NotionX/react-notion-x/blob/master/packages/notion-utils/src/parse-page-id.ts
 const pageIdRe = /\b([a-f0-9]{32})\b/;
 const pageId2Re = /\b([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\b/;

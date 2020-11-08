@@ -2,7 +2,7 @@ module.exports = {
   projects: [
     {
       // https://github.com/formium/tsdx/blob/master/src/createJestConfig.ts
-      displayName: 'unittest',
+      displayName: 'unitTest',
       transform: {
         '.(ts|tsx)$': require.resolve('ts-jest/dist'),
         '.(js|jsx)$': require.resolve('babel-jest'), // jest's default
@@ -16,6 +16,23 @@ module.exports = {
         require.resolve('jest-watch-typeahead/filename'),
         require.resolve('jest-watch-typeahead/testname'),
       ],
+    },
+    {
+      name: 'screenshotTest',
+      testEnvironment: 'node',
+      globalSetup: 'react-screenshot-test/global-setup',
+      globalTeardown: 'react-screenshot-test/global-teardown',
+      testMatch: ['**/?(*.)+(screenshot).[jt]s?(x)'],
+      transform: {
+        '.(ts|tsx)$': require.resolve('ts-jest/dist'),
+        '.(js|jsx)$': require.resolve('babel-jest'), // jest's default
+        '^.+\\.module\\.css$': require.resolve('react-screenshot-test/css-modules-transform'),
+        '^.+\\.css$': 'react-screenshot-test/css-transform',
+        '^.+\\.scss$': 'react-screenshot-test/sass-transform',
+        '^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+          'react-screenshot-test/asset-transform',
+      },
+      transformIgnorePatterns: ['node_modules/.+\\.js'],
     },
   ],
 };

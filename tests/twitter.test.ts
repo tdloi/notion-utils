@@ -14,8 +14,8 @@ describe('Test twitter helper', () => {
       source: '<a href="https://about.twitter.com/products/tweetdeck" rel="nofollow">TweetDeck</a>',
       public_metrics: {
         retweet_count: 152,
-        reply_count: 816,
-        like_count: 1254,
+        reply_count: 10000,
+        like_count: 180100,
         quote_count: 110,
       },
       includes: {
