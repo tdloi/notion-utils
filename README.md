@@ -1,6 +1,7 @@
 # notion-utils
 
 ![github-action](https://github.com/tdloi/notion-utils/workflows/CI/badge.svg)
+![github-action](https://github.com/tdloi/notion-utils/workflows/CodeQL/badge.svg)
 
 > You should use [notion-client](https://www.npmjs.com/package/notion-client) and [notion-utils](https://www.npmjs.com/package/notion-utils)
 
