@@ -1,4 +1,4 @@
-export * from './utils';
+export { parsePageId } from './utils';
 export * from './interfaces';
 export * from './twitter';
 export * from './components';
