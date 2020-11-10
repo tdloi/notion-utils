@@ -119,3 +119,18 @@ export interface ITwitterTimelineResponse {
   };
   [key: string]: any;
 }
+
+export interface ITwitterGuestActivateResponse {
+  guest_token?: string;
+}
+
+export interface ITwitterErrorResponse {
+  errors: Array<{
+    code: number;
+    message: string;
+  }>;
+}
+
+export interface ITwitterOptions {
+  fetch?: (url: RequestInfo, options?: RequestInit) => Promise<Response>;
+}

@@ -1,4 +1,10 @@
-import { ITweet, ITwitterTimelineResponse } from './interfaces';
+import {
+  ITweet,
+  ITwitterTimelineResponse,
+  ITwitterOptions,
+  ITwitterGuestActivateResponse,
+  ITwitterErrorResponse,
+} from './interfaces';
 import LRU from 'lru-cache';
 
 export function getTweetId(url: string): string {
@@ -7,24 +13,30 @@ export function getTweetId(url: string): string {
 
 const cache = new LRU<string, string>({ maxAge: 3 * 60 * 60 });
 const guestTokenCacheKey = 'twitter::guest-token';
-export async function fetchTweet<T>(tweetId: string, token: string): Promise<T> {
+export async function fetchTweet<T>(tweetId: string, token: string, options?: ITwitterOptions): Promise<T> {
   let guestToken = cache.get(guestTokenCacheKey);
+  const _fetch: NonNullable<ITwitterOptions['fetch']> = options?.fetch ?? require('node-fetch');
+
   if (guestToken == null) {
-    guestToken = await fetch('https://api.twitter.com/1.1/guest/activate.json', {
+    guestToken = await _fetch('https://api.twitter.com/1.1/guest/activate.json', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       method: 'POST',
     })
       .then((res) => res.json())
-      .then((res) => {
-        if ('guest_token' in res) {
+      .then((res: ITwitterGuestActivateResponse) => {
+        if (res.guest_token != null) {
           cache.set(guestTokenCacheKey, res.guest_token);
           return res.guest_token;
         }
-        throw new Error('Could not get GUEST TOKEN');
+        throw res;
+      })
+      .catch((err: ITwitterErrorResponse) => {
+        throw new Error(err.errors.map((e) => `${e.code}: ${e.message}`).join('\n'));
       });
   }
+
   const tweet = await fetch(
     `https://api.twitter.com/2/timeline/conversation/${tweetId}.json?` +
       new URLSearchParams({
@@ -39,14 +51,21 @@ export async function fetchTweet<T>(tweetId: string, token: string): Promise<T> 
         'x-guest-token': guestToken ?? '',
       },
     }
-  ).then((res) => res.json());
+  ).then((res) => {
+    const limit = res.headers.get('x-rate-limit-remaining') ?? 0;
+    if (limit < 20) {
+      cache.del(guestTokenCacheKey);
+    }
+
+    return res.json();
+  });
 
   return tweet;
 }
 
-export async function getTweet(url: string, token: string): Promise<ITweet> {
+export async function getTweet(url: string, token: string, options?: ITwitterOptions): Promise<ITweet> {
   const tweetId = getTweetId(url);
-  const res = await fetchTweet<ITwitterTimelineResponse>(tweetId, token);
+  const res = await fetchTweet<ITwitterTimelineResponse>(tweetId, token, options);
   return formatTweet(res, tweetId);
 }
 
