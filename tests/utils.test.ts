@@ -1,4 +1,5 @@
-import { parsePageId } from '../src/utils';
+import { formatPageIntoSection, parsePageId } from '../src/utils';
+import notionHeaderData from './fixtures/notionSectionHeader.json';
 
 const id = '3957380a-c8f1-4187-beb0-e36105e08f85';
 describe('Test parse ID', () => {
@@ -12,5 +13,102 @@ describe('Test parse ID', () => {
     expect(
       parsePageId('https://www.notion.so/tdloi/3957380ac8f14187beb0e36105e08f85?v=6b9f1e3ff0364652a8ee2884df2b6931')
     ).toBe(id);
+  });
+});
+
+describe('Test formatPageIntoSection', () => {
+  const callback = (block: any) => {
+    return { type: 'text', value: block.properties?.title.flatMap((i: string[]) => i[0]).join('') };
+  };
+  it('can format by header', () => {
+    // @ts-ignore
+    expect(formatPageIntoSection(notionHeaderData, 'header')).toMatchObject({
+      header: {
+        'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab': {
+          role: 'editor',
+          value: {
+            id: 'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab',
+            type: 'page',
+            content: ['fbe084c9-436c-4ed6-8aee-756230038a84', '3574e724-8a8e-4795-bcca-53061cf83d10'],
+          },
+        },
+        'fbe084c9-436c-4ed6-8aee-756230038a84': {
+          role: 'editor',
+          value: { type: 'text', properties: { title: [['Lorem ipsum dolor sit amet, consectetur adipiscing elit']] } },
+        },
+        '3574e724-8a8e-4795-bcca-53061cf83d10': {
+          role: 'editor',
+          value: {
+            type: 'text',
+            properties: {
+              title: [
+                ['Praesent', [['b']]],
+                [' '],
+                ['sit amet', [['i']]],
+                [' '],
+                ['diam eu metus', [['_']]],
+                [' '],
+                ['tincidunt eleifend', [['s']]],
+              ],
+            },
+          },
+        },
+      },
+      'header-1x': {
+        'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab': {
+          role: 'editor',
+          value: {
+            id: 'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab',
+            type: 'page',
+            content: ['5bb046d2-931f-4757-b693-729ae9f67ff0'],
+          },
+        },
+        '5bb046d2-931f-4757-b693-729ae9f67ff0': {
+          role: 'editor',
+          value: {
+            type: 'text',
+            properties: { title: [['Lorem ipsum dolor sit amet, consectetur adipiscing elit']] },
+          },
+        },
+      },
+    });
+  });
+
+  it('can format by header with callback', () => {
+    // @ts-ignore
+    expect(formatPageIntoSection(notionHeaderData, 'header', callback)).toMatchObject({
+      header: {
+        'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab': {
+          role: 'editor',
+          value: {
+            id: 'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab',
+            type: 'page',
+            content: ['fbe084c9-436c-4ed6-8aee-756230038a84', '3574e724-8a8e-4795-bcca-53061cf83d10'],
+          },
+        },
+        'fbe084c9-436c-4ed6-8aee-756230038a84': {
+          type: 'text',
+          value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+        },
+        '3574e724-8a8e-4795-bcca-53061cf83d10': {
+          type: 'text',
+          value: 'Praesent sit amet diam eu metus tincidunt eleifend',
+        },
+      },
+      'header-1x': {
+        'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab': {
+          role: 'editor',
+          value: {
+            id: 'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab',
+            type: 'page',
+            content: ['5bb046d2-931f-4757-b693-729ae9f67ff0'],
+          },
+        },
+        '5bb046d2-931f-4757-b693-729ae9f67ff0': {
+          type: 'text',
+          value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+        },
+      },
+    });
   });
 });

@@ -1,5 +1,8 @@
 import _dayjs from 'dayjs';
 import _dayjsUTC from 'dayjs/plugin/utc';
+import slugify from 'slugify';
+import { Block, BlockMap } from 'notion-types';
+import { cloneDeep } from 'lodash';
 
 _dayjs.extend(_dayjsUTC);
 export const dayjs = _dayjs.utc;
@@ -24,3 +27,40 @@ export const parsePageId = (pageId: string) => {
 
   return '';
 };
+
+export function formatPageIntoSection(page: BlockMap, level: 'header'): BlockMap;
+export function formatPageIntoSection(page: BlockMap, level: 'sub_header'): { [key: string]: BlockMap };
+export function formatPageIntoSection<T>(
+  page: BlockMap,
+  level: 'header',
+  callback?: (block: Block) => T
+): { [key: string]: T };
+export function formatPageIntoSection<T>(
+  page: BlockMap,
+  level: 'sub_header',
+  callback?: (block: Block) => T
+): { [key: string]: { [key: string]: T } };
+export function formatPageIntoSection<T>(page: BlockMap, level: string, callback?: (block: Block) => T): any {
+  level; // TODO
+  const [pageId, pageBlock] = Object.entries(page)[0];
+  const blocks: any = {};
+  let title: string = '';
+  // mark content block forward because some blocks (1 - 4) is metadata for
+  // the page
+  let iteratingItem = false;
+  for (const [key, item] of Object.entries(page)) {
+    if (item.value.type === 'header') {
+      // @ts-ignore
+      title = slugify(item.value.properties?.title.flatMap((i: string[]) => i[0]).join('') ?? '', { lower: true });
+      blocks[title] = { [pageId]: cloneDeep(pageBlock) };
+      // only include key which will be used
+      blocks[title][pageId].value.content = [];
+      iteratingItem = true;
+    } else if (iteratingItem === true) {
+      blocks[title][key] = callback?.(item.value) ?? item;
+      blocks[title][pageId].value.content.push(key);
+    }
+  }
+
+  return blocks;
+}

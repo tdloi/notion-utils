@@ -29,13 +29,15 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "prepare": "tsdx build",
-    "test": "jest -c jest.config.js"
+    "test": "jest -c jest.config.js",
+    "test:watch": "jest -c jest.config.js --watch"
   },
   "dependencies": {
     "@emotion/core": "^10.1.1",
     "dayjs": "^1.9.5",
     "lru-cache": "6.0.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "slugify": "^1.4.6"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.165",
@@ -48,6 +50,7 @@
     "lint-staged": "^10.5.1",
     "lodash": "^4.17.20",
     "modern-normalize": "^1.0.0",
+    "notion-types": "2.5.1",
     "prettier": "^2.1.2",
     "puppeteer": "^5.4.1",
     "react": ">16.10",
