@@ -22,7 +22,8 @@ module.exports = {
       testEnvironment: 'node',
       globalSetup: 'react-screenshot-test/global-setup',
       globalTeardown: 'react-screenshot-test/global-teardown',
-      testMatch: ['**/?(*.)+(screenshot).[jt]s?(x)'],
+      testMatch: ['<rootDir>/**/*.(screenshot).{ts,tsx,js,jsx}'],
+      transformIgnorePatterns: ['[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$'],
       transform: {
         '.(ts|tsx)$': require.resolve('ts-jest/dist'),
         '.(js|jsx)$': require.resolve('babel-jest'), // jest's default
@@ -32,7 +33,6 @@ module.exports = {
         '^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
           'react-screenshot-test/asset-transform',
       },
-      transformIgnorePatterns: ['node_modules/.+\\.js'],
     },
   ],
 };

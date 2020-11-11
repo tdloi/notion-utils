@@ -2,7 +2,9 @@ import _dayjs from 'dayjs';
 import _dayjsUTC from 'dayjs/plugin/utc';
 import slugify from 'slugify';
 import { Block, BlockMap, Decoration } from 'notion-types';
-import { cloneDeep, get, set } from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
+import set from 'lodash.set';
+import get from 'lodash.get';
 
 _dayjs.extend(_dayjsUTC);
 export const dayjs = _dayjs.utc;

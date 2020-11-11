@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import 'modern-normalize/modern-normalize.css';
 import { jsx, css, Global } from '@emotion/core';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
 import { ReactScreenshotTest } from 'react-screenshot-test';
 import twitterTimelineData from './fixtures/twitterTimeline.json';
 import { Tweet } from '../src/components/Tweet';
