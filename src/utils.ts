@@ -2,7 +2,7 @@ import _dayjs from 'dayjs';
 import _dayjsUTC from 'dayjs/plugin/utc';
 import slugify from 'slugify';
 import { Block, BlockMap, Decoration } from 'notion-types';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get, set } from 'lodash';
 
 _dayjs.extend(_dayjsUTC);
 export const dayjs = _dayjs.utc;
@@ -34,7 +34,9 @@ export function formatPageIntoSection<T>(
   page: BlockMap,
   level: 'header',
   options?: {
-    includePageBlock: boolean;
+    includePageBlock?: boolean;
+    toText?: boolean;
+    toHTML?: boolean;
     callback?: (block: Block) => T;
   }
 ): { [key: string]: T };
@@ -42,22 +44,24 @@ export function formatPageIntoSection<T>(
   page: BlockMap,
   level: 'sub_header',
   options?: {
-    includePageBlock: boolean;
+    includePageBlock?: boolean;
+    toText?: boolean;
+    toHTML?: boolean;
     callback?: (block: Block) => T;
   }
 ): { [key: string]: { [key: string]: T } };
 export function formatPageIntoSection<T>(
   page: BlockMap,
-  level: string,
+  level: 'header' | 'sub_header',
   options?: {
     includePageBlock?: boolean;
-    toText: boolean;
-    toHTML: boolean;
+    toText?: boolean; // TODO
+    toHTML?: boolean; // TODO
     callback?: (block: Block) => T;
   }
 ): any {
-  level; // TODO
   const [pageId, pageBlock] = Object.entries(page)[0];
+  // for getting pageID, in case of using react notion and the like
   const includePageBlock = options?.includePageBlock ?? true;
   const blocks: any = {};
   let title: string = '';
@@ -65,21 +69,42 @@ export function formatPageIntoSection<T>(
   let iteratingItem = false;
   for (const [key, item] of Object.entries(page)) {
     if (item.value.type === 'header') {
-      title = slugify(item.value.properties?.title.flatMap((i: Decoration) => i[0]).join('') ?? '', { lower: true });
+      title = getTitleText(item.value.properties?.title ?? []);
       iteratingItem = true;
 
+      if (includePageBlock && level === 'header') {
+        set(blocks, `${title}.${pageId}`, cloneDeep(pageBlock));
+        set(blocks, `${title}.${pageId}.value.content`, []);
+      }
+    } else if (level === 'sub_header' && item.value.type === 'sub_header') {
+      // split previous subheader from header
+      if (title.includes('.')) {
+        title = title.substr(0, title.indexOf('.'));
+      }
+      title = title + '.' + getTitleText(item.value.properties?.title ?? []);
+      // console.log(title);
       if (includePageBlock) {
-        blocks[title] = { [pageId]: cloneDeep(pageBlock) };
-        blocks[title][pageId].value.content = [];
-      } else {
-        blocks[title] = {};
+        set(blocks, `${title}.${pageId}`, cloneDeep(pageBlock));
+        set(blocks, `${title}.${pageId}.value.content`, []);
       }
     } else if (iteratingItem === true) {
-      blocks[title][key] = options?.callback?.(item.value) ?? item;
-      // only include key which will be used
-      blocks[title][pageId]?.value?.content?.push(key);
+      set(blocks, `${title}.${key}`, options?.callback?.(item.value) ?? item);
+      // simple is the best
+      if (includePageBlock) {
+        set(
+          blocks,
+          `${title}.${pageId}.value.content`,
+          get(blocks, `${title}.${pageId}.value.content`, []).concat(key)
+        );
+      }
     }
   }
 
   return blocks;
+}
+
+function getTitleText(title: Decoration[]) {
+  return slugify(title.flatMap((i) => i[0]).join('') ?? '', {
+    lower: true,
+  }).replace(/\./g, '__');
 }

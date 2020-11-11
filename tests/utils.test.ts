@@ -1,5 +1,6 @@
 import { formatPageIntoSection, parsePageId } from '../src/utils';
 import notionHeaderData from './fixtures/notionSectionHeader.json';
+import notionSubheaderData from './fixtures/notionSectionSubheader.json';
 
 const id = '3957380a-c8f1-4187-beb0-e36105e08f85';
 describe('Test parse ID', () => {
@@ -86,6 +87,31 @@ describe('Test formatPageIntoSection', () => {
       },
       'header-1x': {
         '5bb046d2-931f-4757-b693-729ae9f67ff0': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+      },
+    });
+  });
+
+  it('can format by subheader', () => {
+    // @ts-ignore
+    expect(formatPageIntoSection(notionSubheaderData, 'sub_header')).toMatchObject({
+      header: {
+        'sub-header-1': {
+          'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab': {
+            role: 'editor',
+            value: {
+              id: 'ffa7f65a-d0e9-4458-92f8-f1b07dfdb8ab',
+              type: 'page',
+              content: ['fbe084c9-436c-4ed6-8aee-756230038a84'],
+            },
+          },
+          'fbe084c9-436c-4ed6-8aee-756230038a84': {
+            role: 'editor',
+            value: {
+              type: 'text',
+              properties: { title: [['Lorem ipsum dolor sit amet, consectetur adipiscing elit']] },
+            },
+          },
+        },
       },
     });
   });
