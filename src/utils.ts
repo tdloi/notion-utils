@@ -1,7 +1,7 @@
 import _dayjs from 'dayjs';
 import _dayjsUTC from 'dayjs/plugin/utc';
 import slugify from 'slugify';
-import { Block, BlockMap } from 'notion-types';
+import { Block, BlockMap, Decoration } from 'notion-types';
 import { cloneDeep } from 'lodash';
 
 _dayjs.extend(_dayjsUTC);
@@ -33,32 +33,51 @@ export function formatPageIntoSection(page: BlockMap, level: 'sub_header'): { [k
 export function formatPageIntoSection<T>(
   page: BlockMap,
   level: 'header',
-  callback?: (block: Block) => T
+  options?: {
+    includePageBlock: boolean;
+    callback?: (block: Block) => T;
+  }
 ): { [key: string]: T };
 export function formatPageIntoSection<T>(
   page: BlockMap,
   level: 'sub_header',
-  callback?: (block: Block) => T
+  options?: {
+    includePageBlock: boolean;
+    callback?: (block: Block) => T;
+  }
 ): { [key: string]: { [key: string]: T } };
-export function formatPageIntoSection<T>(page: BlockMap, level: string, callback?: (block: Block) => T): any {
+export function formatPageIntoSection<T>(
+  page: BlockMap,
+  level: string,
+  options?: {
+    includePageBlock?: boolean;
+    toText: boolean;
+    toHTML: boolean;
+    callback?: (block: Block) => T;
+  }
+): any {
   level; // TODO
   const [pageId, pageBlock] = Object.entries(page)[0];
+  const includePageBlock = options?.includePageBlock ?? true;
   const blocks: any = {};
   let title: string = '';
-  // mark content block forward because some blocks (1 - 4) is metadata for
-  // the page
+  // mark content block because some blocks (1 - 4) is metadata for the page
   let iteratingItem = false;
   for (const [key, item] of Object.entries(page)) {
     if (item.value.type === 'header') {
-      // @ts-ignore
-      title = slugify(item.value.properties?.title.flatMap((i: string[]) => i[0]).join('') ?? '', { lower: true });
-      blocks[title] = { [pageId]: cloneDeep(pageBlock) };
-      // only include key which will be used
-      blocks[title][pageId].value.content = [];
+      title = slugify(item.value.properties?.title.flatMap((i: Decoration) => i[0]).join('') ?? '', { lower: true });
       iteratingItem = true;
+
+      if (includePageBlock) {
+        blocks[title] = { [pageId]: cloneDeep(pageBlock) };
+        blocks[title][pageId].value.content = [];
+      } else {
+        blocks[title] = {};
+      }
     } else if (iteratingItem === true) {
-      blocks[title][key] = callback?.(item.value) ?? item;
-      blocks[title][pageId].value.content.push(key);
+      blocks[title][key] = options?.callback?.(item.value) ?? item;
+      // only include key which will be used
+      blocks[title][pageId]?.value?.content?.push(key);
     }
   }
 
