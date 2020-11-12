@@ -8,6 +8,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Clean cache
         run: yarn cache clean --all
@@ -48,13 +49,14 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Action"
+          git fetch origin 'refs/tags/*:refs/tags/*'
           hub release create -m ${{ env.PACKAGE_VERSION }} -m "$(git log --format="%h %s" ${{ env.GITHUB_RELEASE_VERSION }}..HEAD)" ${{ env.PACKAGE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: env.PACKAGE_VERSION != env.GITHUB_RELEASE_VERSION
 
       - name: Publish to NPM
-        run: yarn publish --access publish
+        run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: env.PACKAGE_VERSION != env.RELEASED_VERSION
