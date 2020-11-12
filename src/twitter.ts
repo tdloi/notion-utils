@@ -4,6 +4,7 @@ import {
   ITwitterOptions,
   ITwitterGuestActivateResponse,
   ITwitterErrorResponse,
+  IFetch,
 } from './interfaces';
 import LRU from 'lru-cache';
 
@@ -115,3 +116,19 @@ export function formatTweet(res: ITwitterTimelineResponse, tweetId: string): ITw
 
   return formattedTWeet;
 }
+
+export const proxyFetch = (proxyURL: string, _fetch: IFetch = require('node-fetch')) => (
+  url: RequestInfo,
+  body?: RequestInit
+) => {
+  return _fetch(proxyURL, {
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: url,
+      body: body,
+    }),
+    method: 'POST',
+  });
+};

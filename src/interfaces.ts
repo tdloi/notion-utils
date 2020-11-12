@@ -131,6 +131,8 @@ export interface ITwitterErrorResponse {
   }>;
 }
 
+export type IFetch = (url: RequestInfo, options?: RequestInit) => Promise<Response>;
+
 export interface ITwitterOptions {
-  fetch?: (url: RequestInfo, options?: RequestInit) => Promise<Response>;
+  fetch?: IFetch;
 }
