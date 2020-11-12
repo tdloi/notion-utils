@@ -48,7 +48,7 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Action"
-          hub release create -m ${{ env.PACKAGE_VERSION }} -m "$(git log --format="%h %s" ${{ env.GITHUB_TAG_VERSION }}..HEAD)" ${{ env.PACKAGE_VERSION }}
+          hub release create -m ${{ env.PACKAGE_VERSION }} -m "$(git log --format="%h %s" ${{ env.GITHUB_RELEASE_VERSION }}..HEAD)" ${{ env.PACKAGE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: env.PACKAGE_VERSION != env.GITHUB_RELEASE_VERSION
