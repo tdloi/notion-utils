@@ -45,10 +45,15 @@ jobs:
           echo "GITHUB_RELEASE_VERSION=$(curl -s https://api.github.com/repos/tdloi/notion-utils/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
           echo "RELEASED_VERSION=v$(npm view @tdloi/notion-utils version)" >> $GITHUB_ENV
 
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        if: env.PACKAGE_VERSION != env.GITHUB_RELEASE_VERSION
+
       - name: Github release
         run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email github-actions@github.com
+          git config --local user.name github-actions
           git fetch origin 'refs/tags/*:refs/tags/*'
           hub release create -m ${{ env.PACKAGE_VERSION }} -m "$(git log --format="%h %s" ${{ env.GITHUB_RELEASE_VERSION }}..HEAD)" ${{ env.PACKAGE_VERSION }}
         env:
