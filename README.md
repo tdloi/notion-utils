@@ -10,7 +10,7 @@ Utilities for working with Notion API.This is a **hard fork** of [react-notion-x
 ## Usage
 
 ```bash
-npm install https://github.com/tdloi/notion-utils
+npm install @tdloi/notion-utils
 ```
 
 ## LICENSE
