@@ -8,8 +8,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+
       - name: Clean cache
         run: yarn cache clean --all
+
       # - name: Cache node modules
       #   uses: actions/cache@v2
       #   env:
@@ -35,3 +37,13 @@ jobs:
       # waiting for https://github.com/fwouts/react-screenshot-test/pull/287
       - name: Test
         run: yarn test
+
+      - name: Set package version
+        run: |
+          echo "RELEASE_VERSION=$(curl -s https://api.github.com/repos/tdloi/notion-utils/tags | jq -r '.[0].name')" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=$(npm view @tdloi/notion-utils version)" >> $GITHUB_ENV
+
+      - run: yarn publish --access publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: env.RELEASE_VERSION != env.PACKAGE_VERSION
