@@ -41,17 +41,20 @@ jobs:
       - name: Set package version
         run: |
           echo "PACKAGE_VERSION=v$(cat package.json | jq -r '.version')" >> $GITHUB_ENV
-          echo "GITHUB_RELEASE_VERSION=$(curl -s https://api.github.com/repos/tdloi/notion-utils/releases | jq -r '.[0].name')" >> $GITHUB_ENV
-          echo "RELEASED_VERSION=$(npm view @tdloi/notion-utils version)" >> $GITHUB_ENV
+          echo "GITHUB_RELEASE_VERSION=$(curl -s https://api.github.com/repos/tdloi/notion-utils/releases/latest | jq -r '.tag_name')" >> $GITHUB_ENV
+          echo "RELEASED_VERSION=v$(npm view @tdloi/notion-utils version)" >> $GITHUB_ENV
 
       - name: Github release
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Action"
           hub release create -m ${{ env.PACKAGE_VERSION }} -m "$(git log --format="%h %s" ${{ env.GITHUB_TAG_VERSION }}..HEAD)" ${{ env.PACKAGE_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: env.PACKAGE_VERSION != env.GITHUB_RELEASE_VERSION
 
-      - run: yarn publish --access publish
+      - name: Publish to NPM
+        run: yarn publish --access publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         if: env.PACKAGE_VERSION != env.RELEASED_VERSION
