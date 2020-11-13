@@ -59,7 +59,7 @@
     "puppeteer": "^5.4.1",
     "react": ">16.10",
     "react-dom": ">16.10",
-    "react-screenshot-test": "https://github.com/tdloi/react-screenshot-test#e8ff6ef-tmp",
+    "react-screenshot-test": "2.2.0",
     "tsdx": "0.14.1",
     "tslib": "^2.0.3",
     "typescript": "<4.0.0"
