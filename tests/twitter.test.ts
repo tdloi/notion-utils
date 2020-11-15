@@ -4,6 +4,7 @@ import twitterTimelineData from './fixtures/twitterTimeline.json';
 describe('Test twitter helper', () => {
   it('can get twitter id', () => {
     expect(getTweetId('https://twitter.com/jack/status/20')).toBe('20');
+    expect(getTweetId('https://twitter.com/jack/status/20/')).toBe('20');
   });
 
   it('can format data', () => {

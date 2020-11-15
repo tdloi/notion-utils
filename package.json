@@ -1,6 +1,6 @@
 {
   "name": "@tdloi/notion-utils",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Utilities for working with Notion API",
   "author": "Loi Tran",
   "license": "MIT",

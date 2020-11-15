@@ -134,5 +134,6 @@ export interface ITwitterErrorResponse {
 export type IFetch = (url: RequestInfo, options?: RequestInit) => Promise<Response>;
 
 export interface ITwitterOptions {
+  token?: string;
   fetch?: IFetch;
 }

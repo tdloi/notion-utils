@@ -9,12 +9,18 @@ import {
 import LRU from 'lru-cache';
 
 export function getTweetId(url: string): string {
+  if (url.endsWith('/')) {
+    url = url.substr(0, url.length - 1);
+  }
   return url.substr(url.lastIndexOf('/') + 1);
 }
 
 const cache = new LRU<string, string>({ maxAge: 3 * 60 * 60 });
 const guestTokenCacheKey = 'twitter::guest-token';
-export async function fetchTweet<T>(tweetId: string, token: string, options?: ITwitterOptions): Promise<T> {
+export async function fetchTweet<T>(tweetId: string, options?: ITwitterOptions): Promise<T> {
+  const token =
+    options?.token ??
+    'AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
   let guestToken = cache.get(guestTokenCacheKey);
   const _fetch: NonNullable<ITwitterOptions['fetch']> = options?.fetch ?? require('node-fetch');
 
@@ -64,9 +70,9 @@ export async function fetchTweet<T>(tweetId: string, token: string, options?: IT
   return tweet;
 }
 
-export async function getTweet(url: string, token: string, options?: ITwitterOptions): Promise<ITweet> {
+export async function getTweet(url: string, options?: ITwitterOptions): Promise<ITweet> {
   const tweetId = getTweetId(url);
-  const res = await fetchTweet<ITwitterTimelineResponse>(tweetId, token, options);
+  const res = await fetchTweet<ITwitterTimelineResponse>(tweetId, options);
   return formatTweet(res, tweetId);
 }
 
