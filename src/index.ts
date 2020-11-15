@@ -1,4 +1,4 @@
-export { parsePageId } from './utils';
+export { parsePageId, getPageRaw } from './utils';
 export * from './interfaces';
 export { getTweet, getTweetId, proxyFetch } from './twitter';
 export * from './components';

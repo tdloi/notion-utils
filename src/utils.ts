@@ -1,5 +1,6 @@
 import _dayjs from 'dayjs';
 import _dayjsUTC from 'dayjs/plugin/utc';
+import { IFetch, IGetPageOptions, NotionAPIError, NotionPageChunk } from './interfaces';
 
 _dayjs.extend(_dayjsUTC);
 export const dayjs = _dayjs.utc;
@@ -24,3 +25,24 @@ export const parsePageId = (pageId: string) => {
 
   return '';
 };
+
+const NOTION_API = 'https://www.notion.so/api/v3';
+export async function getPageRaw(pageId: string, options: IGetPageOptions): Promise<NotionPageChunk | NotionAPIError> {
+  const _fetch: NonNullable<IFetch> = options?.fetch ?? require('node-fetch');
+  const headers: RequestInit['headers'] = { 'content-type': 'application/json' };
+  if (options.notionToken) {
+    headers['cookie'] = `token_v2=${options.notionToken}`;
+  }
+
+  return _fetch(`${NOTION_API}/loadPageChunk`, {
+    headers: headers,
+    body: JSON.stringify({
+      pageId: parsePageId(pageId),
+      limit: 999999,
+      cursor: { stack: [] },
+      chunkNumber: 0,
+      verticalColumns: false,
+    }),
+    method: 'POST',
+  }).then((res) => res.json());
+}

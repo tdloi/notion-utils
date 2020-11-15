@@ -1,3 +1,5 @@
+import { PageChunk } from 'notion-types';
+
 // response from Twitter API v2: https://api.twitter.com/2/tweets/:id
 // params:
 // tweet.fields=attachments,author_id,conversation_id,created_at,entities,id,public_metrics,source,text
@@ -133,7 +135,23 @@ export interface ITwitterErrorResponse {
 
 export type IFetch = (url: RequestInfo, options?: RequestInit) => Promise<Response>;
 
-export interface ITwitterOptions {
+export type ITwitterOptions = {
   token?: string;
   fetch?: IFetch;
+};
+
+export type IGetPageOptions = {
+  notionToken?: string;
+  fetch?: IFetch;
+};
+
+export interface NotionAPIError {
+  errorId: string;
+  name: string;
+  message: string;
+}
+
+export interface NotionPageChunk extends PageChunk {
+  errorId: undefined;
+  [key: string]: any;
 }
