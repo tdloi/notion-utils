@@ -15,7 +15,7 @@ export function getTweetId(url: string): string {
   return url.substr(url.lastIndexOf('/') + 1);
 }
 
-const cache = new LRU<string, string>({ maxAge: 3 * 60 * 60 });
+const cache = new LRU<string, string>({ maxAge: 3 * 60 * 1000 });
 const guestTokenCacheKey = 'twitter::guest-token';
 export async function fetchTweet<T>(tweetId: string, options?: ITwitterOptions): Promise<T> {
   const token =
