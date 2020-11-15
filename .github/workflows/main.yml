@@ -32,7 +32,6 @@ jobs:
       - name: Pull Docker Image
         run: docker pull fwouts/chrome-screenshot:1.2.0
 
-      # waiting for https://github.com/fwouts/react-screenshot-test/pull/287
       - name: Test
         run: npm test
 
@@ -51,7 +50,6 @@ jobs:
         run: |
           git config --local user.email github-actions@github.com
           git config --local user.name github-actions
-          git fetch origin 'refs/tags/*:refs/tags/*'
           hub release create -m ${{ env.PACKAGE_VERSION }} -m "$(git log --format="%h %s" ${{ env.GITHUB_RELEASE_VERSION }}..HEAD)" ${{ env.PACKAGE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
