@@ -7,6 +7,8 @@ import {
   IFetch,
 } from './interfaces';
 import LRU from 'lru-cache';
+import qs from 'querystring';
+import { dayjs } from './utils';
 
 export function getTweetId(url: string): string {
   if (url.endsWith('/')) {
@@ -34,7 +36,7 @@ export async function fetchTweet<T>(tweetId: string, options?: ITwitterOptions):
       .then((res) => res.json())
       .then((res: ITwitterGuestActivateResponse) => {
         if (res.guest_token != null) {
-          cache.set(guestTokenCacheKey, res.guest_token);
+          cache.set(guestTokenCacheKey, res.guest_token, options?.cacheMaxAge);
           return res.guest_token;
         }
         throw res;
@@ -43,22 +45,25 @@ export async function fetchTweet<T>(tweetId: string, options?: ITwitterOptions):
         throw new Error(err.errors.map((e) => `${e.code}: ${e.message}`).join('\n'));
       });
   }
-
-  const tweet = await fetch(
-    `https://api.twitter.com/2/timeline/conversation/${tweetId}.json?` +
-      new URLSearchParams({
-        tweet_mode: 'extended',
-        include_reply_count: '1',
-        include_quote_count: '1',
-        include_user_entities: 'true',
-      }),
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'x-guest-token': guestToken ?? '',
-      },
-    }
-  ).then((res) => {
+  const params = {
+    tweet_mode: 'extended',
+    include_blocking: '1',
+    include_reply_count: '1',
+    include_quote_count: '1',
+    include_followed_by: '1',
+    include_blocked_by: '1',
+    include_user_entities: 'true',
+    include_entities: 'true',
+    send_error_codes: 'true',
+    count: '20',
+    ...(options?.params || {}),
+  };
+  const tweet = await fetch(`https://api.twitter.com/2/timeline/conversation/${tweetId}.json?` + qs.stringify(params), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'x-guest-token': guestToken ?? '',
+    },
+  }).then((res) => {
     const limit = res.headers.get('x-rate-limit-remaining') ?? 0;
     if (limit < 20) {
       cache.del(guestTokenCacheKey);
@@ -74,6 +79,50 @@ export async function getTweet(url: string, options?: ITwitterOptions): Promise<
   const tweetId = getTweetId(url);
   const res = await fetchTweet<ITwitterTimelineResponse>(tweetId, options);
   return formatTweet(res, tweetId);
+}
+
+export async function getTweets(
+  url: string,
+  options?: ITwitterOptions & { limit?: number }
+): Promise<Array<ITweet & { reply_to?: string }>> {
+  let limit = options?.limit ?? 7;
+  const tweetId = getTweetId(url);
+  let timelines = await fetchTweet<ITwitterTimelineResponse>(tweetId, options);
+  let cursor = getCursor(timelines.timeline);
+  while (cursor != undefined && limit > 0) {
+    const res = await fetchTweet<ITwitterTimelineResponse>(tweetId, { ...options, params: { cursor: cursor } });
+    cursor = getCursor(res.timeline);
+    limit -= 1;
+    timelines = {
+      globalObjects: {
+        tweets: {
+          ...timelines.globalObjects.tweets,
+          ...res.globalObjects.tweets,
+        },
+        users: {
+          ...timelines.globalObjects.users,
+          ...res.globalObjects.users,
+        },
+      },
+      timeline: res.timeline,
+    };
+  }
+
+  return Object.keys(timelines.globalObjects.tweets)
+    .filter((id) => id !== tweetId)
+    .map((tweetID) => formatTweet(timelines, tweetID))
+    .map((tweet) => {
+      if (tweet.referenced_tweets?.[0]) {
+        tweet.reply_to = tweet.referenced_tweets[0].id;
+      }
+      return tweet;
+    })
+    .sort((a, b) => dayjs(b.created_at).diff(a.created_at));
+}
+
+function getCursor(timeline: ITwitterTimelineResponse['timeline']) {
+  return timeline.instructions[0].addEntries.entries.find((e) => e.content?.operation?.cursor?.cursorType === 'Bottom')
+    ?.content?.operation?.cursor?.value;
 }
 
 export function formatTweet(res: ITwitterTimelineResponse, tweetId: string): ITweet {
@@ -93,7 +142,6 @@ export function formatTweet(res: ITwitterTimelineResponse, tweetId: string): ITw
       reply_count: tweet.reply_count,
       retweet_count: tweet.retweet_count,
     },
-    // TODO: parse entities property
     includes: {
       users: [
         {
@@ -107,7 +155,7 @@ export function formatTweet(res: ITwitterTimelineResponse, tweetId: string): ITw
     },
   } as ITweet;
 
-  if (tweet.entities.media) {
+  if (tweet?.entities?.media) {
     const media = tweet.entities.media[0];
     formattedTWeet['includes']['media'] = [
       {
@@ -118,6 +166,10 @@ export function formatTweet(res: ITwitterTimelineResponse, tweetId: string): ITw
         url: media?.media_url_https,
       },
     ];
+  }
+
+  if (tweet.in_reply_to_status_id_str) {
+    formattedTWeet['referenced_tweets'] = [{ id: tweet.in_reply_to_status_id_str, type: 'replied_to' }];
   }
 
   return formattedTWeet;

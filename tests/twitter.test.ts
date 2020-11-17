@@ -8,6 +8,7 @@ describe('Test twitter helper', () => {
   });
 
   it('can format data', () => {
+    // @ts-ignore
     expect(formatTweet(twitterTimelineData, '798284925765971968')).toMatchObject({
       id: '798284925765971968',
       text: 'Which side do you choose? Dark or Light theme? https://t.co/uXRnu20T2b',
