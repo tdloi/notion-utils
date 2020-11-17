@@ -86,7 +86,6 @@ export function Tweet({ tweet, variant, options }: IProps) {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                     width="22px"
-                    style={{ color: 'var(--bg)' }}
                   >
                     <path
                       strokeLinecap="round"
