@@ -3,7 +3,7 @@
 ![github-action](https://github.com/tdloi/notion-utils/workflows/CI/badge.svg)
 ![github-action](https://github.com/tdloi/notion-utils/workflows/CodeQL/badge.svg)
 
-Utilities for working with Notion API, also some random functin for building blog and website.
+Utilities for working with Notion API, also some random function for building blog and website.
 
 > You should prioritize using [notion-client](https://www.npmjs.com/package/notion-client) and [notion-utils](https://www.npmjs.com/package/notion-utils) as they cover most of Notion API use case
 

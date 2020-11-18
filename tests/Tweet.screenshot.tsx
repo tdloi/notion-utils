@@ -8,8 +8,11 @@ import { Tweet } from '../src/components/Tweet';
 import { ITwitterTimelineResponse } from '../src/interfaces';
 import { formatTweet } from '../src/twitter';
 
-let tweetWithoutMedia: ITwitterTimelineResponse = cloneDeep(twitterTimelineData);
-tweetWithoutMedia.globalObjects.tweets['798284925765971968'].entities = {};
+// @ts-ignore
+const tweets: ITwitterTimelineResponse = twitterTimelineData;
+// @ts-ignore
+let tweetsWithoutMedia: ITwitterTimelineResponse = cloneDeep(twitterTimelineData);
+tweetsWithoutMedia.globalObjects.tweets['798284925765971968'].entities = {};
 
 const style = css`
   line-height: 1.5rem;
@@ -32,20 +35,20 @@ ReactScreenshotTest.create('Tweet')
   .shoot(
     'light-theme',
     <div css={style}>
-      <Tweet tweet={formatTweet(twitterTimelineData, '798284925765971968')} variant="light" />
+      <Tweet tweet={formatTweet(tweets, '798284925765971968')} variant="light" />
     </div>
   )
   .shoot(
     'dark-theme',
     <div css={style}>
       <Global styles={{ body: { background: '#12141c' } }} />
-      <Tweet tweet={formatTweet(twitterTimelineData, '798284925765971968')} variant="dark" />
+      <Tweet tweet={formatTweet(tweets, '798284925765971968')} variant="dark" />
     </div>
   )
   .shoot(
     'without-media',
     <div css={style}>
-      <Tweet tweet={formatTweet(tweetWithoutMedia, '798284925765971968')} variant="light" />
+      <Tweet tweet={formatTweet(tweetsWithoutMedia, '798284925765971968')} variant="light" />
     </div>
   )
   .run();
