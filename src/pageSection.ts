@@ -44,26 +44,30 @@ export function formatPageIntoSection<T>(
   for (const [key, item] of Object.entries(page)) {
     if (item.value.type === 'header') {
       title = getTitleText(item.value.properties?.title ?? []);
-      iteratingItem = true;
+      // avoid putting unrelated block
+      if (level === 'header') {
+        iteratingItem = true;
+      }
 
       if (includePageBlock && level === 'header') {
         set(blocks, `${title}.${pageId}`, cloneDeep(pageBlock));
         set(blocks, `${title}.${pageId}.value.content`, []);
       }
     } else if (level === 'sub_header' && item.value.type === 'sub_header') {
+      iteratingItem = true;
       // split previous subheader from header
       if (title.includes('.')) {
         title = title.substr(0, title.indexOf('.'));
       }
       title = title + '.' + getTitleText(item.value.properties?.title ?? []);
-      // console.log(title);
+
       if (includePageBlock) {
         set(blocks, `${title}.${pageId}`, cloneDeep(pageBlock));
         set(blocks, `${title}.${pageId}.value.content`, []);
       }
     } else if (iteratingItem === true) {
       set(blocks, `${title}.${key}`, options?.callback?.(item.value) ?? item);
-      // simple is the best
+      // push block key to content of page block
       if (includePageBlock) {
         set(
           blocks,
@@ -81,7 +85,7 @@ function getTitleText(title: Decoration[]) {
   return (title.flatMap((i) => i[0]).join('') ?? '').toLowerCase().replace(/ /g, '-').replace(/\./g, '__');
 }
 
-function getProperty(object: any, prop: string, fallback: any) {
+function getProperty(object: any, prop: string, fallback: any = null) {
   const props = prop.split('.');
   return props.reduce((prev, curr) => {
     return prev?.[curr] ?? fallback;
