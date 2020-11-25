@@ -20,6 +20,7 @@ export function getTweetId(url: string): string {
 const cache = new LRU<string, string>({ maxAge: 3 * 60 * 1000 });
 const guestTokenCacheKey = 'twitter::guest-token';
 export async function fetchTweet<T>(tweetId: string, options?: ITwitterOptions): Promise<T> {
+  // this is hardcode token on twitter client build
   const token =
     options?.token ??
     'AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
